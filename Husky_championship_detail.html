@@ -417,19 +417,15 @@ async function submitRegistration() {
   btn.textContent = 'იგზავნება...';
 
   try {
-    await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({
-        subscriber_id: 'web_' + Date.now(),
-        name,
-        phone,
-        email,
-        competition: championshipTitle,
-        category: selectedCategory
-      })
+    const params = new URLSearchParams({
+      subscriber_id: 'web_' + Date.now(),
+      name,
+      phone,
+      email,
+      competition: championshipTitle,
+      category: selectedCategory
     });
+    await fetch(`${WEBHOOK_URL}?${params.toString()}`, { mode: 'no-cors' });
 
     document.getElementById('modalContent').innerHTML = `
       <div class="success-state">
