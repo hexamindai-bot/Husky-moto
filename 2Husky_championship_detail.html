@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>ჩემპიონატი</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+Georgian:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange: #ff4d00;
+    --dark: #0c0c0e;
+    --card: #161618;
+    --border: #2a2a2e;
+    --text: #f0ede8;
+    --muted: #888;
+  }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Noto Sans Georgian', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .hero {
+    position: relative;
+    height: 55vw;
+    max-height: 320px;
+    min-height: 200px;
+    overflow: hidden;
+    background: #111;
+  }
+  .hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(12,12,14,0) 30%, rgba(12,12,14,1) 100%);
+  }
+  .hero-badge {
+    position: absolute;
+    top: 16px; left: 16px;
+    background: var(--orange);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 2px;
+  }
+
+  .content { padding: 0 16px 40px; margin-top: -8px; position: relative; }
+
+  .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 10vw, 52px);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .promoter {
+    font-size: 12px;
+    color: var(--orange);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .info-card.full { grid-column: 1 / -1; }
+  .info-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .info-value { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .info-icon { font-size: 18px; margin-bottom: 4px; }
+
+  .weather-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,77,0,0.12);
+    border: 1px solid rgba(255,77,0,0.25);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff8855;
+    margin-bottom: 20px;
+  }
+
+  .section-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+
+  .btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px;
+    border-radius: 12px;
+    font-family: 'Noto Sans Georgian', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    width: 100%;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { opacity: 0.8; }
+  .btn-primary { background: var(--orange); color: #fff; }
+  .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+  .description { font-size: 14px; line-height: 1.7; color: #aaa; margin-bottom: 24px; }
+
+  .loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 80vh; gap: 16px;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { color: var(--muted); font-size: 14px; }
+
+  .error {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 80vh; gap: 12px;
+    padding: 24px; text-align: center;
+  }
+  .error-icon { font-size: 48px; }
+  .error-text { color: var(--muted); font-size: 14px; }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .nav {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px;
+    background: rgba(12,12,14,0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: var(--orange); }
+  .nav-dot { width: 4px; height: 4px; background: var(--border); border-radius: 50%; }
+  .nav-sub { font-size: 12px; color: var(--muted); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px env(safe-area-inset-bottom, 40px);
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .form-field { margin-bottom: 14px; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 15px 14px;
+    font-family: 'Noto Sans Georgian', sans-serif;
+    font-size: 16px; /* 16px prevents iOS zoom */
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--orange); }
+  .form-input::placeholder { color: #444; }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .category-btn {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Noto Sans Georgian', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    min-height: 48px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .category-btn.selected {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: rgba(255,77,0,0.08);
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 18px;
+    background: var(--orange);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans Georgian', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    min-height: 56px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .submit-btn:active { opacity: 0.8; }
+  .submit-btn:disabled { opacity: 0.5; cursor: default; }
+
+  .success-state {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .success-icon { font-size: 52px; margin-bottom: 12px; }
+  .success-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .success-sub { font-size: 14px; color: var(--muted); line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">GNMF</span>
+  <span class="nav-dot"></span>
+  <span class="nav-sub">საქართველოს მოტოსპორტის ფედერაცია</span>
+</nav>
+
+<div id="app">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">იტვირთება...</div>
+  </div>
+</div>
+
+<!-- REGISTRATION MODAL -->
+<div class="modal-overlay" id="regModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modalContent">
+      <div class="modal-title">📝 რეგისტრაცია</div>
+      <div class="modal-sub" id="modalSub">ჩემპიონატი</div>
+
+      <div class="form-field">
+        <label class="form-label">სახელი და გვარი</label>
+        <input class="form-input" id="regName" type="text" placeholder="სახელი გვარი">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">ტელეფონი</label>
+        <input class="form-input" id="regPhone" type="tel" placeholder="5XXXXXXXX">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">ელ-ფოსტა</label>
+        <input class="form-input" id="regEmail" type="email" placeholder="example@gmail.com">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">კატეგორია</label>
+        <div class="category-grid" id="categoryGrid"></div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitRegistration()">რეგისტრაცია</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_KEY = 'patVk69zPt30vU8wY.5156e44c17a19a2f7582d2831bee7b2f22dd7dab7e66c41c50179c9b91b4dcc2';
+const BASE_ID = 'app6CrexxFMlZl8Vz';
+const TABLE = 'championships';
+const WEBHOOK_URL = 'https://hook.eu1.make.com/1lyhpilqdvqmk6t8k1arpdcfphdxxa9w';
+
+let championshipTitle = '';
+let selectedCategory = '';
+
+function getParam(name) {
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function formatDate(raw) {
+  if (!raw) return '—';
+  const d = new Date(raw);
+  const months = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+  return `${d.getDate()} ${months[d.getMonth()]}, ${d.getFullYear()} — ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+function openModal() {
+  document.getElementById('regModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('regModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close modal on overlay click
+document.getElementById('regModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function selectCategory(btn, value) {
+  document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedCategory = value;
+}
+
+async function submitRegistration() {
+  const name = document.getElementById('regName').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+
+  if (!name || !phone || !email || !selectedCategory) {
+    alert('გთხოვთ შეავსოთ ყველა ველი და აირჩიოთ კატეგორია');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'იგზავნება...';
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({
+        subscriber_id: 'web_' + Date.now(),
+        name,
+        phone,
+        email,
+        competition: championshipTitle,
+        category: selectedCategory
+      })
+    });
+
+    document.getElementById('modalContent').innerHTML = `
+      <div class="success-state">
+        <div class="success-icon">🏁</div>
+        <div class="success-title">რეგისტრაცია წარმატებულია!</div>
+        <div class="success-sub">თქვენი განაცხადი მიღებულია.<br>მალე დაგიკავშირდებით.</div>
+      </div>
+    `;
+    setTimeout(closeModal, 3000);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'რეგისტრაცია';
+    alert('შეცდომა. სცადეთ კვლავ.');
+  }
+}
+
+async function load() {
+  const id = getParam('id');
+  if (!id) { showError('ჩემპიონატი ვერ მოიძებნა'); return; }
+
+  try {
+    const res = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE}/${id}`, {
+      headers: { Authorization: `Bearer ${API_KEY}` }
+    });
+    if (!res.ok) throw new Error('not found');
+    const { fields } = await res.json();
+    render(fields);
+  } catch(e) {
+    showError('ჩემპიონატი ვერ ჩაიტვირთა');
+  }
+}
+
+function render(f) {
+  const img = f['Image'] && f['Image'][0] ? f['Image'][0].url : '';
+  const date = formatDate(f['Date']);
+  const venue = f['Venue'] || '—';
+  const weather = f['weather'] || '';
+  const classes = f['classes'] || f['Discipline classes'] || '';
+  const age = f['Age'] || '';
+  const mapsUrl = f['Maps_URL'] || '';
+  const description = f['Description'] || f['dscription'] || '';
+  const promoter = f['Promoter'] || '';
+
+  championshipTitle = f['Title'] || '';
+  document.title = championshipTitle || 'ჩემპიონატი';
+
+  // Build category buttons from classes field
+  document.getElementById('modalSub').textContent = championshipTitle;
+  const categoryGrid = document.getElementById('categoryGrid');
+  if (classes) {
+    const cats = classes.split(',').map(c => c.trim()).filter(Boolean);
+    categoryGrid.innerHTML = cats.map(cat =>
+      `<button class="category-btn" onclick="selectCategory(this, '${cat}')">${cat}</button>`
+    ).join('');
+  } else {
+    categoryGrid.innerHTML = ['Kids Youth','Pro','Amateur','Women'].map(cat =>
+      `<button class="category-btn" onclick="selectCategory(this, '${cat}')">${cat}</button>`
+    ).join('');
+  }
+
+  document.getElementById('app').innerHTML = `
+    <div class="fade-in">
+      <div class="hero">
+        ${img ? `<img src="${img}" alt="${championshipTitle}">` : '<div style="height:100%;background:linear-gradient(135deg,#1a1a1e,#0c0c0e)"></div>'}
+        <div class="hero-overlay"></div>
+        <div class="hero-badge">🏁 ჩემპიონატი</div>
+      </div>
+
+      <div class="content">
+        <div class="title">${championshipTitle}</div>
+        ${promoter ? `<div class="promoter">${promoter}</div>` : '<div style="margin-bottom:24px"></div>'}
+        ${weather ? `<div class="weather-pill">🌤 ${weather}</div>` : ''}
+
+        <div class="info-grid">
+          <div class="info-card full">
+            <div class="info-icon">📅</div>
+            <div class="info-label">თარიღი და დრო</div>
+            <div class="info-value">${date}</div>
+          </div>
+          <div class="info-card full">
+            <div class="info-icon">📍</div>
+            <div class="info-label">ადგილი</div>
+            <div class="info-value">${venue}</div>
+          </div>
+          ${age ? `<div class="info-card"><div class="info-icon">🔞</div><div class="info-label">ასაკი</div><div class="info-value">${age}</div></div>` : ''}
+          ${classes ? `<div class="info-card"><div class="info-icon">🏍</div><div class="info-label">კლასი</div><div class="info-value">${classes}</div></div>` : ''}
+        </div>
+
+        ${description ? `<div class="section-title">აღწერა</div><div class="description">${description}</div>` : ''}
+
+        <div class="divider"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="openModal()">📝 რეგისტრაცია</button>
+          ${mapsUrl ? `<a href="${mapsUrl}" class="btn btn-secondary" target="_blank">🗺 მარშრუტი</a>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function showError(msg) {
+  document.getElementById('app').innerHTML = `
+    <div class="error">
+      <div class="error-icon">🏍</div>
+      <div style="font-size:18px;font-weight:700">${msg}</div>
+      <div class="error-text">გთხოვთ სცადოთ მოგვიანებით</div>
+    </div>
+  `;
+}
+
+async function init() {
+  await load();
+  if (getParam('register') === 'true') {
+    setTimeout(openModal, 600);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
