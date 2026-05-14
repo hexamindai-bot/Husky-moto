@@ -505,10 +505,15 @@ function render(f) {
             <div class="info-value">${venue}</div>
           </div>
           ${age ? `<div class="info-card"><div class="info-icon">🔞</div><div class="info-label">ასაკი</div><div class="info-value">${age}</div></div>` : ''}
-          ${classes ? `<div class="info-card"><div class="info-icon">🏍</div><div class="info-label">კლასი</div><div class="info-value">${classes}</div></div>` : ''}
         </div>
 
-        ${description ? `<div class="section-title">აღწერა</div><div class="description">${description}</div>` : ''}
+        ${description ? `
+        <div class="info-card full" style="margin-bottom:24px">
+          <div class="info-icon">📋</div>
+          <div class="info-label">დამატებითი ინფორმაცია</div>
+          <div class="info-value" style="font-weight:400;font-size:14px;line-height:1.7;color:#aaa">${description}</div>
+        </div>
+        ` : ''}
 
         <div class="divider"></div>
 
