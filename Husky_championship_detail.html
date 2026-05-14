@@ -389,17 +389,21 @@ function selectCategory(el, value) {
   selectedCategory = value;
 }
 
-function buildCategories(classes) {
+function buildCategories() {
   const categoryGrid = document.getElementById('categoryGrid');
-  const cats = classes
-    ? classes.split(',').map(c => c.trim()).filter(Boolean)
-    : ['Kids Youth','Pro','Amateur','Women'];
+  const cats = ['Kids', 'Pro', 'Veteran'];
 
   categoryGrid.innerHTML = cats.map((cat, i) =>
-    `<button type="button" class="category-btn${cats.length === 1 ? ' selected' : ''}" id="cat_${i}" onclick="selectCategory(document.getElementById('cat_${i}'), '${cat}')">${cat}</button>`
+    `<div class="category-btn" data-cat="${cat}">${cat}</div>`
   ).join('');
 
-  if (cats.length === 1) selectedCategory = cats[0];
+  categoryGrid.addEventListener('click', function(e) {
+    const btn = e.target.closest('.category-btn');
+    if (!btn) return;
+    categoryGrid.querySelectorAll('.category-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCategory = btn.getAttribute('data-cat');
+  });
 }
 
 async function submitRegistration() {
@@ -474,7 +478,7 @@ function render(f) {
 
   // Build category buttons from classes field
   document.getElementById('modalSub').textContent = championshipTitle;
-  buildCategories(classes);
+  buildCategories();
 
   document.getElementById('app').innerHTML = `
     <div class="fade-in">
